@@ -1,0 +1,25 @@
+import 'package:flutter/material.dart';
+
+const primaryColor = Color(0XFF00288E);
+const secondaryColor = Color(0XFFF8F9FF);
+const whiteColor = Colors.white;
+const blackColor = Colors.black;
+const darkBlueColor = Color(0XFF0B1C30);
+const lightBlueColor = Color(0XFFEFF4FF);
+const secLightBlueColor = Color(0XFFDCE9FF);
+const thirLightBlueColor = Color.fromRGBO(30, 64, 175, 0.1);
+const fourLightBlueColor = Color(0XFFE5EEFF);
+const fifthLightBlueColor = Color.fromRGBO(0, 40, 142, 0.1);
+const sixthLightBlueColor = Color(0XFFD3E4FE);
+const greyColor = Color(0XFFC4C5D5);
+const secGreyColor = Color(0XFF444653);
+const thirGreyColor = Color(0XFF5C5F61);
+const fourGreyColor = Color(0XFF757684);
+const lightPinkColor = Color(0XFFE9DDFF);
+const lightPurpleColor = Color(0XFF5516BE);
+const secLightPurpleColor = Color(0XFF3755C3);
+const firLightPurpleColor = Color.fromRGBO(64, 0, 156, 0.1);
+const purpleColor = Color(0XFF40009C);
+const greenColor = Color(0XFF16A34A);
+const redColor = Color(0XFFBA1A1A);
+const lightRedColor = Color.fromRGBO(255, 218, 214, 0.3);
