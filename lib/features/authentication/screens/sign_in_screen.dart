@@ -140,7 +140,7 @@ class _SignInScreenState extends State<SignInScreen> {
               children: [
                 Text('New to EduAgent? ', style: AppTextStyle.ninStyle),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () => context.goNamed(RouteNames.signUpScreenString),
                   child: Text(
                     'Create an account',
                     style: AppTextStyle.tenStyle,

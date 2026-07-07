@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' show MaterialPage;
 import 'package:go_router/go_router.dart';
 import 'package:hedagent/features/authentication/screens/sign_in_screen.dart';
+import 'package:hedagent/features/authentication/screens/sign_up_screen.dart';
 import 'package:hedagent/features/home/screens/home.dart';
 import 'package:hedagent/features/onboarding/screens/onboarding_screen.dart';
 import 'package:hedagent/features/onboarding/screens/splash_screen.dart';
@@ -29,6 +30,13 @@ class AppRouter {
         path: '/sign_in_screen',
         pageBuilder: (context, state) {
           return const MaterialPage(child: SignInScreen());
+        },
+      ),
+      GoRoute(
+        name: RouteNames.signUpScreenString,
+        path: '/sign_up_screen',
+        pageBuilder: (context, state) {
+          return const MaterialPage(child: SignUpScreen());
         },
       ),
       GoRoute(
