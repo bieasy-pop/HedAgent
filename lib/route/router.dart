@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart' show MaterialPage;
 import 'package:go_router/go_router.dart';
+import 'package:hedagent/features/authentication/screens/educator_sign_up_screen.dart';
 import 'package:hedagent/features/authentication/screens/sign_in_screen.dart';
-import 'package:hedagent/features/authentication/screens/sign_up_screen.dart';
+import 'package:hedagent/features/authentication/screens/sign_up_role_screen.dart';
+import 'package:hedagent/features/authentication/screens/student_sign_up_screen.dart';
 import 'package:hedagent/features/home/screens/home.dart';
 import 'package:hedagent/features/onboarding/screens/onboarding_screen.dart';
 import 'package:hedagent/features/onboarding/screens/splash_screen.dart';
@@ -36,7 +38,21 @@ class AppRouter {
         name: RouteNames.signUpScreenString,
         path: '/sign_up_screen',
         pageBuilder: (context, state) {
-          return const MaterialPage(child: SignUpScreen());
+          return const MaterialPage(child: SignUpRoleScreen());
+        },
+      ),
+      GoRoute(
+        name: RouteNames.studentSignUpScreenString,
+        path: '/sign_up_screen/student',
+        pageBuilder: (context, state) {
+          return const MaterialPage(child: StudentSignUpScreen());
+        },
+      ),
+      GoRoute(
+        name: RouteNames.educatorSignUpScreenString,
+        path: '/sign_up_screen/educator',
+        pageBuilder: (context, state) {
+          return const MaterialPage(child: EducatorSignUpScreen());
         },
       ),
       GoRoute(

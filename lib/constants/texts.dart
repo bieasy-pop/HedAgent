@@ -42,6 +42,7 @@ class Texts {
   static const String emailLabelText = 'Email Address';
   static const String passwordLabelText = 'Password';
   static const String signInText = 'Sign In';
+  static const String signUpText = 'Sign Up';
   static const String getStartedText = 'Get Started';
   static const String swipeExploreText = 'Swipe to explore';
 }
