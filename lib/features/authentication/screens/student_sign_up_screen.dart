@@ -47,10 +47,7 @@ class _StudentSignUpViewState extends State<_StudentSignUpView> {
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _otherNameController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
-
   final TextEditingController _matricNoController = TextEditingController();
-  final TextEditingController _facultyController = TextEditingController();
-  final TextEditingController _departmentController = TextEditingController();
   final TextEditingController _programmeController = TextEditingController();
   final TextEditingController _levelController = TextEditingController();
   final TextEditingController _yearOfAdmissionController =
@@ -59,6 +56,8 @@ class _StudentSignUpViewState extends State<_StudentSignUpView> {
       TextEditingController();
 
   String? _selectedGender;
+  String? _selectedCollege;
+  String? _selectedDepartment;
   String? _selectedUniversity;
   String _phoneNumber = '';
   DateTime? _selectedDate;
@@ -106,8 +105,8 @@ class _StudentSignUpViewState extends State<_StudentSignUpView> {
       dateOfBirth: DateFormat('yyyy-MM-dd').format(_selectedDate!),
       studentData: StudentData(
         studentNumber: _matricNoController.text.trim(),
-        faculty: _facultyController.text.trim(),
-        department: _departmentController.text.trim(),
+        faculty: _selectedCollege ?? '',
+        department: _selectedDepartment ?? '',
         programme: _programmeController.text.trim(),
         level: _levelController.text.trim(),
         yearOfAdmission: _yearOfAdmissionController.text.trim(),
@@ -128,8 +127,6 @@ class _StudentSignUpViewState extends State<_StudentSignUpView> {
     _otherNameController.dispose();
     _dateController.dispose();
     _matricNoController.dispose();
-    _facultyController.dispose();
-    _departmentController.dispose();
     _programmeController.dispose();
     _levelController.dispose();
     _yearOfAdmissionController.dispose();
@@ -271,14 +268,14 @@ class _StudentSignUpViewState extends State<_StudentSignUpView> {
                                     ),
                                     Gap(14 / 844 * size.height),
                                     Text(
-                                      'Faculty',
+                                      'College',
                                       style: AppTextStyle.sevStyle,
                                     ),
                                     Gap(8 / 844 * size.height),
-                                    TextFormField(
-                                      controller: _facultyController,
+                                    DropdownButtonFormField<String>(
+                                      initialValue: _selectedCollege,
                                       decoration: InputDecoration(
-                                        hintText: 'Enter your faculty',
+                                        hintText: 'Select college',
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(
                                             8,
@@ -296,8 +293,19 @@ class _StudentSignUpViewState extends State<_StudentSignUpView> {
                                           ),
                                         ),
                                       ),
+                                      items: const [
+                                        DropdownMenuItem(
+                                          value: 'COLCOM',
+                                          child: Text('College of Computing'),
+                                        ),
+                                      ],
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _selectedCollege = value;
+                                        });
+                                      },
                                       validator: (value) =>
-                                          _requiredValidator(value, 'Faculty'),
+                                          _requiredValidator(value, 'College'),
                                     ),
                                     Gap(14 / 844 * size.height),
                                     Text(
@@ -305,10 +313,10 @@ class _StudentSignUpViewState extends State<_StudentSignUpView> {
                                       style: AppTextStyle.sevStyle,
                                     ),
                                     Gap(8 / 844 * size.height),
-                                    TextFormField(
-                                      controller: _departmentController,
+                                    DropdownButtonFormField<String>(
+                                      initialValue: _selectedDepartment,
                                       decoration: InputDecoration(
-                                        hintText: 'Enter your department',
+                                        hintText: 'Select department',
                                         border: OutlineInputBorder(
                                           borderRadius: BorderRadius.circular(
                                             8,
@@ -326,6 +334,33 @@ class _StudentSignUpViewState extends State<_StudentSignUpView> {
                                           ),
                                         ),
                                       ),
+                                      items: const [
+                                        DropdownMenuItem(
+                                          value: 'Software Engineering',
+                                          child: Text('Software Engineering'),
+                                        ),
+                                        DropdownMenuItem(
+                                          value: 'Computer Science',
+                                          child: Text('Computer Science'),
+                                        ),
+                                        DropdownMenuItem(
+                                          value: 'InfoTech',
+                                          child: Text('InfoTech'),
+                                        ),
+                                        DropdownMenuItem(
+                                          value: 'Data Science',
+                                          child: Text('Data Science'),
+                                        ),
+                                        DropdownMenuItem(
+                                          value: 'Cyber Security',
+                                          child: Text('Cyber Security'),
+                                        ),
+                                      ],
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _selectedDepartment = value;
+                                        });
+                                      },
                                       validator: (value) => _requiredValidator(
                                         value,
                                         'Department',
