@@ -46,13 +46,9 @@ class _EducatorSignUpViewState extends State<_EducatorSignUpView> {
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _otherNameController = TextEditingController();
-  final TextEditingController _universityController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
 
   final TextEditingController _staffIdController = TextEditingController();
-  final TextEditingController _facultyController = TextEditingController();
-  final TextEditingController _departmentController = TextEditingController();
-  final TextEditingController _designationController = TextEditingController();
   final TextEditingController _specializationController =
       TextEditingController();
 
@@ -100,16 +96,16 @@ class _EducatorSignUpViewState extends State<_EducatorSignUpView> {
       otherName: _otherNameController.text.trim().isEmpty
           ? null
           : _otherNameController.text.trim(),
-      universityName: _universityController.text.trim(),
+      universityName: _selectedUniversity ?? '',
       role: 'educator',
       phoneNumber: _phoneNumber,
       gender: _selectedGender ?? '',
       dateOfBirth: DateFormat('yyyy-MM-dd').format(_selectedDate!),
       educatorData: EducatorData(
         staffId: _staffIdController.text.trim(),
-        faculty: _facultyController.text.trim(),
-        department: _departmentController.text.trim(),
-        designation: _designationController.text.trim(),
+        faculty: _selectedCollege ?? '',
+        department: _selectedDepartment ?? '',
+        designation: _selectedDesignation ?? '',
         specialization: _specializationController.text.trim(),
       ),
     );
@@ -125,12 +121,8 @@ class _EducatorSignUpViewState extends State<_EducatorSignUpView> {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _otherNameController.dispose();
-    _universityController.dispose();
     _dateController.dispose();
     _staffIdController.dispose();
-    _facultyController.dispose();
-    _departmentController.dispose();
-    _designationController.dispose();
     _specializationController.dispose();
     super.dispose();
   }
@@ -145,8 +137,8 @@ class _EducatorSignUpViewState extends State<_EducatorSignUpView> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message), backgroundColor: redColor),
           );
-        } else if (state is AuthSuccess) {
-          context.goNamed(RouteNames.homeString);
+        } else if (state is RegisterSuccess) {
+          context.goNamed(RouteNames.pendingApprovalScreenString);
         }
       },
       builder: (context, state) {
@@ -361,8 +353,10 @@ class _EducatorSignUpViewState extends State<_EducatorSignUpView> {
                                           _selectedDepartment = value;
                                         });
                                       },
-                                      validator: (value) =>
-                                          _requiredValidator(value, 'College'),
+                                      validator: (value) => _requiredValidator(
+                                        value,
+                                        'Department',
+                                      ),
                                     ),
                                     Gap(14 / 844 * size.height),
                                     Text(
@@ -397,6 +391,22 @@ class _EducatorSignUpViewState extends State<_EducatorSignUpView> {
                                           child: Text('Lecturer'),
                                         ),
                                         DropdownMenuItem(
+                                          value: 'Dean',
+                                          child: Text('Dean'),
+                                        ),
+                                        DropdownMenuItem(
+                                          value: 'HOD',
+                                          child: Text('Head of Department'),
+                                        ),
+                                        DropdownMenuItem(
+                                          value: 'College Officer',
+                                          child: Text('College Officer'),
+                                        ),
+                                        DropdownMenuItem(
+                                          value: 'Level Advisor',
+                                          child: Text('Level Advisor'),
+                                        ),
+                                        DropdownMenuItem(
                                           value: 'Senior Lecturer',
                                           child: Text('Senior Lecturer'),
                                         ),
@@ -417,8 +427,8 @@ class _EducatorSignUpViewState extends State<_EducatorSignUpView> {
                                           child: Text('Advisory Lecturer'),
                                         ),
                                         DropdownMenuItem(
-                                          value: 'Academic Officers',
-                                          child: Text('Academic Officers'),
+                                          value: 'Academic Officer',
+                                          child: Text('Academic Officer'),
                                         ),
                                       ],
                                       onChanged: (value) {

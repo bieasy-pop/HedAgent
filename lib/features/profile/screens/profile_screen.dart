@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hedagent/constants/app_style.dart';
 import 'package:hedagent/constants/colors.dart';
 import 'package:hedagent/constants/texts.dart';
 import 'package:hedagent/constants/utils/information_util.dart';
+import 'package:hedagent/constants/widgets/elev_btn_widget.dart';
 import 'package:hedagent/constants/widgets/header_widget.dart';
 import 'package:hedagent/features/profile/widgets/ai_predict_widget.dart';
 import 'package:hedagent/features/profile/widgets/intervention_widget.dart';
 import 'package:hedagent/features/profile/widgets/profile_activity_widget.dart';
 import 'package:hedagent/features/profile/widgets/user_profile_widget.dart';
+import 'package:hedagent/route/app_router_names.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -129,6 +133,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 time: 'June 9',
                 subtitle:
                     'Discussed thesis proposal. Student is ahead of schedule.',
+              ),
+              Gap(20),
+              elevBtn(
+                size,
+                () async {
+                  await FlutterSecureStorage().deleteAll();
+                  // ignore: use_build_context_synchronously
+                  context.goNamed(RouteNames.signInScreenString);
+                },
+                'Log Out',
+                redColor,
+                null,
+                null,
               ),
               Gap(70),
             ],

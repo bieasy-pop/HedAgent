@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart' show MaterialPage;
 import 'package:go_router/go_router.dart';
 import 'package:hedagent/features/authentication/screens/educator_sign_up_screen.dart';
+import 'package:hedagent/features/authentication/screens/email_verification_screen.dart';
+import 'package:hedagent/features/authentication/screens/pending_approval_screen.dart';
 import 'package:hedagent/features/authentication/screens/sign_in_screen.dart';
 import 'package:hedagent/features/authentication/screens/sign_up_role_screen.dart';
 import 'package:hedagent/features/authentication/screens/student_sign_up_screen.dart';
@@ -14,7 +16,7 @@ class AppRouter {
     routes: <RouteBase>[
       GoRoute(
         name: RouteNames.splashScreenString,
-        path: '/splash_screen',
+        path: '/',
         pageBuilder: (context, state) {
           return const MaterialPage(child: SplashScreen());
         },
@@ -22,7 +24,7 @@ class AppRouter {
       GoRoute(
         name: RouteNames.onboardingScreenString,
         // path: '/onboarding-screen',
-        path: '/',
+        path: '/onboarding_screen',
         pageBuilder: (context, state) {
           return const MaterialPage(child: OnboardingScreen());
         },
@@ -53,6 +55,20 @@ class AppRouter {
         path: '/sign_up_screen/educator',
         pageBuilder: (context, state) {
           return const MaterialPage(child: EducatorSignUpScreen());
+        },
+      ),
+      GoRoute(
+        name: RouteNames.emailVerificationScreenString,
+        path: '/email_verification_screen',
+        pageBuilder: (context, state) {
+          return const MaterialPage(child: EmailVerificationScreen());
+        },
+      ),
+      GoRoute(
+        name: RouteNames.pendingApprovalScreenString,
+        path: '/pending_approval_screen',
+        pageBuilder: (context, state) {
+          return const MaterialPage(child: PendingApprovalScreen());
         },
       ),
       GoRoute(

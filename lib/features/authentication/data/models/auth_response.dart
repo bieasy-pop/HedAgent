@@ -37,6 +37,19 @@ class StudentProfile {
       riskLabel: json['risk_label'] as String?,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'student_number': studentNumber,
+    'faculty': faculty,
+    'department': department,
+    'programme': programme,
+    'level': level,
+    'year_of_admission': yearOfAdmission,
+    'expected_graduation': expectedGraduation,
+    'gpa': gpa,
+    'attendance_rate': attendanceRate,
+    'risk_label': riskLabel,
+  };
 }
 
 class EducatorProfile {
@@ -63,6 +76,14 @@ class EducatorProfile {
       specialization: json['specialization'] as String?,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'staff_id': staffId,
+    'faculty': faculty,
+    'department': department,
+    'designation': designation,
+    'specialization': specialization,
+  };
 }
 
 class AuthUser {
@@ -130,6 +151,25 @@ class AuthUser {
             ),
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'email': email,
+    'first_name': firstName,
+    'last_name': lastName,
+    'other_name': otherName,
+    'full_name': fullName,
+    'university_name': universityName,
+    'phone_number': phoneNumber,
+    'gender': gender,
+    'date_of_birth': dateOfBirth,
+    'role': role,
+    'avatar_url': avatarUrl,
+    'is_active': isActive,
+    'is_verified': isVerified,
+    'student_profile': studentProfile?.toJson(),
+    'educator_profile': educatorProfile?.toJson(),
+  };
 }
 
 class AuthResponse {

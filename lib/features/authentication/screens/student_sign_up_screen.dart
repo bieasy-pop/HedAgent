@@ -46,7 +46,6 @@ class _StudentSignUpViewState extends State<_StudentSignUpView> {
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _otherNameController = TextEditingController();
-  final TextEditingController _universityController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
 
   final TextEditingController _matricNoController = TextEditingController();
@@ -100,7 +99,7 @@ class _StudentSignUpViewState extends State<_StudentSignUpView> {
       otherName: _otherNameController.text.trim().isEmpty
           ? null
           : _otherNameController.text.trim(),
-      universityName: _universityController.text.trim(),
+      universityName: _selectedUniversity ?? '',
       role: 'student',
       phoneNumber: _phoneNumber,
       gender: _selectedGender ?? '',
@@ -127,7 +126,6 @@ class _StudentSignUpViewState extends State<_StudentSignUpView> {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _otherNameController.dispose();
-    _universityController.dispose();
     _dateController.dispose();
     _matricNoController.dispose();
     _facultyController.dispose();
@@ -149,7 +147,7 @@ class _StudentSignUpViewState extends State<_StudentSignUpView> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(state.message), backgroundColor: redColor),
           );
-        } else if (state is AuthSuccess) {
+        } else if (state is RegisterSuccess) {
           context.goNamed(RouteNames.homeString);
         }
       },
@@ -206,7 +204,6 @@ class _StudentSignUpViewState extends State<_StudentSignUpView> {
                                       firstNameController: _firstNameController,
                                       lastNameController: _lastNameController,
                                       otherNameController: _otherNameController,
-
                                       dateController: _dateController,
                                       isPasswordVisible: isPasswordVisible,
                                       isConfirmPasswordVisible:
