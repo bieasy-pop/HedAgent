@@ -9,4 +9,7 @@ class RouteNames {
       'email-verification-screen';
   static const String pendingApprovalScreenString = 'pending-approval-screen';
   static const String homeString = 'home-screen';
+  static const String studentDetailScreenString = 'student-detail-screen';
+  static const String addStudentScreenString = 'add-student-screen';
+  static const String sendAlertScreenString = 'send-alert-screen';
 }

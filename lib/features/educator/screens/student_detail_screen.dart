@@ -1,167 +1,147 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hedagent/constants/app_style.dart';
 import 'package:hedagent/constants/colors.dart';
-import 'package:hedagent/constants/widgets/elev_btn_widget.dart';
-import 'package:hedagent/features/educator/data/mock_data.dart';
+import 'package:hedagent/constants/utils/information_util.dart';
+import 'package:hedagent/constants/widgets/header_widget.dart';
+import 'package:hedagent/features/authentication/data/auth_repository.dart';
+import 'package:hedagent/features/authentication/data/models/auth_response.dart';
+import 'package:hedagent/features/authentication/data/user_storage_service.dart';
+import 'package:hedagent/features/educator/data/educator_store.dart';
+import 'package:hedagent/features/educator/models/educator_models.dart';
+import 'package:hedagent/features/educator/widgets/risk_badge_widget.dart';
 import 'package:hedagent/features/profile/widgets/intervention_widget.dart';
+import 'package:hedagent/route/app_router_names.dart';
+import 'package:intl/intl.dart';
 
 class StudentDetailScreen extends StatefulWidget {
-  const StudentDetailScreen({super.key, required this.studentId});
+  const StudentDetailScreen({super.key, required this.student});
 
-  final String studentId;
+  final EducatorStudent student;
 
   @override
   State<StudentDetailScreen> createState() => _StudentDetailScreenState();
 }
 
 class _StudentDetailScreenState extends State<StudentDetailScreen> {
-  MockStudent get _student => EducatorMockStore.students.firstWhere(
-    (s) => s.id == widget.studentId,
-  );
+  StudentProfile? _liveProfile;
 
-  List<MockIntervention> get _interventions => EducatorMockStore
-      .interventions
-      .where((i) => i.studentId == widget.studentId)
-      .toList();
-
-  void _logIntervention() {
-    final titleController = TextEditingController();
-    final notesController = TextEditingController();
-    final formKey = GlobalKey<FormState>();
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (sheetContext) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 20,
-            right: 20,
-            top: 20,
-            bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 20,
-          ),
-          child: Form(
-            key: formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Log Intervention', style: AppTextStyle.fourtStyle),
-                const Gap(16),
-                TextFormField(
-                  controller: titleController,
-                  decoration: const InputDecoration(labelText: 'Title'),
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Required' : null,
-                ),
-                const Gap(12),
-                TextFormField(
-                  controller: notesController,
-                  maxLines: 3,
-                  decoration: const InputDecoration(labelText: 'Notes'),
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Required' : null,
-                ),
-                const Gap(20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                    ),
-                    onPressed: () {
-                      if (!formKey.currentState!.validate()) {
-                        return;
-                      }
-                      setState(() {
-                        EducatorMockStore.interventions.add(
-                          MockIntervention(
-                            studentId: widget.studentId,
-                            title: titleController.text.trim(),
-                            subtitle: notesController.text.trim(),
-                            time: 'Just now',
-                            level: 2,
-                          ),
-                        );
-                      });
-                      Navigator.of(sheetContext).pop();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Intervention logged.')),
-                      );
-                    },
-                    child: Text('Save', style: AppTextStyle.fivStyle),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
+  @override
+  void initState() {
+    super.initState();
+    _loadLiveProfile();
   }
 
-  void _sendAlert() {
-    final messageController = TextEditingController();
-    final formKey = GlobalKey<FormState>();
+  /// Refreshes GPA/attendance/risk data from the backend record for this
+  /// student. Falls back silently to the locally tracked values if the
+  /// lookup fails (e.g. a mock student not yet present on the backend).
+  Future<void> _loadLiveProfile() async {
+    try {
+      final token = await UserStorageService().getToken();
+      if (token == null) return;
+      final profile = await AuthRepository().getStudentById(
+        token,
+        widget.student.id,
+      );
+      if (mounted) setState(() => _liveProfile = profile);
+    } catch (_) {
+      // Keep showing the locally tracked data.
+    }
+  }
+
+  num get _gpa => _liveProfile?.gpa ?? widget.student.gpa;
+  num get _attendanceRate =>
+      _liveProfile?.attendanceRate ?? widget.student.attendanceRate;
+  String get _riskLabel => _liveProfile?.riskLabel ?? widget.student.riskLabel;
+
+  void _showLogInterventionSheet(BuildContext context) {
+    final titleController = TextEditingController();
+    final noteController = TextEditingController();
+    InterventionStatus status = InterventionStatus.recommended;
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (sheetContext) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 20,
-            right: 20,
-            top: 20,
-            bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 20,
-          ),
-          child: Form(
-            key: formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Send Alert to ${_student.name}', style: AppTextStyle.fourtStyle),
-                const Gap(16),
-                TextFormField(
-                  controller: messageController,
-                  maxLines: 3,
-                  decoration: const InputDecoration(labelText: 'Message'),
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Required' : null,
-                ),
-                const Gap(20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                    ),
-                    onPressed: () {
-                      if (!formKey.currentState!.validate()) {
-                        return;
-                      }
-                      EducatorMockStore.alerts.add(
-                        MockAlert(
-                          id: 'a${EducatorMockStore.alerts.length + 1}',
-                          title: 'Alert to ${_student.name}',
-                          message: messageController.text.trim(),
-                          target: _student.name,
-                          sentAt: DateTime.now(),
-                        ),
-                      );
-                      Navigator.of(sheetContext).pop();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Alert sent to ${_student.name}.')),
-                      );
-                    },
-                    child: Text('Send', style: AppTextStyle.fivStyle),
+        return StatefulBuilder(
+          builder: (sheetContext, setSheetState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 20,
+                bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 20,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Log Intervention', style: AppTextStyle.fourtStyle),
+                  Gap(16),
+                  TextField(
+                    controller: titleController,
+                    decoration: const InputDecoration(labelText: 'Title'),
                   ),
-                ),
-              ],
-            ),
-          ),
+                  TextField(
+                    controller: noteController,
+                    maxLines: 3,
+                    decoration: const InputDecoration(labelText: 'Notes'),
+                  ),
+                  Gap(12),
+                  DropdownButtonFormField<InterventionStatus>(
+                    initialValue: status,
+                    decoration: const InputDecoration(labelText: 'Severity'),
+                    items: InterventionStatus.values
+                        .map(
+                          (value) => DropdownMenuItem(
+                            value: value,
+                            child: Text(value.name),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setSheetState(() => status = value);
+                      }
+                    },
+                  ),
+                  Gap(20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      onPressed: () {
+                        if (titleController.text.trim().isEmpty) return;
+                        EducatorStore.instance.logIntervention(
+                          widget.student,
+                          InterventionRecord(
+                            title: titleController.text.trim(),
+                            time: DateFormat('MMM d').format(DateTime.now()),
+                            subtitle: noteController.text.trim(),
+                            status: status,
+                          ),
+                        );
+                        Navigator.of(sheetContext).pop();
+                      },
+                      child: Text(
+                        'Save Intervention',
+                        style: AppTextStyle.fivStyle,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
     );
@@ -170,102 +150,187 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
-    final student = _student;
+    final student = widget.student;
+    final aiSummary = _liveProfile?.aiSummary;
 
     return Scaffold(
-      appBar: AppBar(title: Text(student.name)),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.0 / 390 * size.width),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Gap(20),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: whiteColor,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(student.name, style: AppTextStyle.fourtStyle),
-                    Text(
-                      '${student.matricNo} • ${student.department} • ${student.level}L',
-                      style: AppTextStyle.eigStyle,
-                    ),
-                    const Gap(12),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Attendance: ${student.attendanceRate.toStringAsFixed(0)}%',
-                          style: AppTextStyle.sevStyle,
+      appBar: headerWidget('assets/svgs/small_ic.svg', 'EduAgent', []),
+      body: ListenableBuilder(
+        listenable: EducatorStore.instance,
+        builder: (context, _) {
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Gap(16),
+                  Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(9999),
+                        child: Image.asset(
+                          student.picPath,
+                          height: 72,
+                          width: 72,
+                          fit: BoxFit.cover,
                         ),
-                        Text(
-                          'GPA: ${student.gpa.toStringAsFixed(2)}',
-                          style: AppTextStyle.sevStyle,
+                      ),
+                      Gap(16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(student.name, style: AppTextStyle.twentStyle),
+                            Text(
+                              '${student.level}L • ${student.department}',
+                              style: AppTextStyle.nintStyle,
+                            ),
+                            Gap(6),
+                            riskBadgeWidget(_riskLabel),
+                          ],
                         ),
-                        Text(
-                          student.riskLabel,
-                          style: AppTextStyle.twelvStyle,
+                      ),
+                    ],
+                  ),
+                  Gap(24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Container(
+                          margin: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: whiteColor,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('GPA', style: AppTextStyle.eigStyle),
+                              Text(
+                                _gpa.toStringAsFixed(2),
+                                style: AppTextStyle.fourtStyle,
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
+                      ),
+                      Expanded(
+                        child: Container(
+                          margin: const EdgeInsets.only(left: 8),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: whiteColor,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Attendance', style: AppTextStyle.eigStyle),
+                              Text(
+                                '$_attendanceRate%',
+                                style: AppTextStyle.fourtStyle,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (aiSummary != null && aiSummary.isNotEmpty) ...[
+                    Gap(16),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: thirLightBlueColor,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'AI PREDICTIVE INSIGHT',
+                            style: AppTextStyle.eigStyle,
+                          ),
+                          Gap(4),
+                          Text(aiSummary, style: AppTextStyle.sevtStyle),
+                        ],
+                      ),
                     ),
                   ],
-                ),
-              ),
-              Gap(20 / 844 * size.height),
-              Row(
-                children: [
-                  Expanded(
-                    child: elevBtn(
-                      size,
-                      _sendAlert,
-                      'Send Alert',
-                      null,
-                      null,
-                    ),
+                  Gap(24),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onPressed: () => context.pushNamed(
+                            RouteNames.sendAlertScreenString,
+                            extra: student,
+                          ),
+                          icon: const Icon(
+                            Icons.notifications_active_outlined,
+                            color: whiteColor,
+                          ),
+                          label: Text(
+                            'Send Alert',
+                            style: AppTextStyle.fivStyle,
+                          ),
+                        ),
+                      ),
+                      Gap(12),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: primaryColor),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onPressed: () => _showLogInterventionSheet(context),
+                          icon: Icon(Icons.add_task, color: primaryColor),
+                          label: Text(
+                            'Log Intervention',
+                            style: AppTextStyle.tenStyle,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  const Gap(12),
-                  Expanded(
-                    child: elevBtn(
-                      size,
-                      _logIntervention,
-                      'Log Intervention',
-                      secondaryColor,
-                      AppTextStyle.tenStyle,
+                  Gap(28),
+                  Text('Intervention History', style: AppTextStyle.fourtStyle),
+                  Gap(12),
+                  if (student.interventions.isEmpty)
+                    Text(
+                      'No interventions logged yet.',
+                      style: AppTextStyle.nintStyle,
+                    )
+                  else
+                    ...student.interventions.map(
+                      (record) => Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: iteractionWidget(
+                          size: size,
+                          level: interventionLevel(record.status),
+                          title: record.title,
+                          time: record.time,
+                          subtitle: record.subtitle,
+                        ),
+                      ),
                     ),
-                  ),
+                  Gap(50),
                 ],
               ),
-              Gap(32 / 844 * size.height),
-              Text('Intervention History', style: AppTextStyle.fourtStyle),
-              Gap(12 / 844 * size.height),
-              if (_interventions.isEmpty)
-                Text(
-                  'No interventions logged for this student yet.',
-                  style: AppTextStyle.nintStyle,
-                )
-              else
-                ..._interventions.map(
-                  (intervention) => Padding(
-                    padding: EdgeInsets.only(bottom: 6 / 844 * size.height),
-                    child: iteractionWidget(
-                      level: intervention.level,
-                      size: size,
-                      title: intervention.title,
-                      time: intervention.time,
-                      subtitle: intervention.subtitle,
-                    ),
-                  ),
-                ),
-              Gap(40 / 844 * size.height),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }

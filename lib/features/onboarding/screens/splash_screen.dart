@@ -43,7 +43,8 @@ class _SplashScreenState extends State<SplashScreen> {
       return;
     }
 
-    navigateAfterAuth(context, user);
+    // navigateAfterAuth(context, user);
+    context.goNamed(RouteNames.signInScreenString);
   }
 
   @override

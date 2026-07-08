@@ -3,6 +3,7 @@ import 'package:hedagent/constants/text_urls.dart';
 import 'package:hedagent/features/authentication/data/models/auth_response.dart';
 import 'package:hedagent/features/authentication/data/models/login_request.dart';
 import 'package:hedagent/features/authentication/data/models/register_request.dart';
+import 'package:hedagent/features/authentication/data/models/student_profile_request.dart';
 
 class AuthException implements Exception {
   AuthException(this.message);
@@ -144,5 +145,79 @@ class AuthRepository {
       return AuthUser.fromJson(userJson);
     }
     throw AuthException('Received an unexpected response from server.');
+  }
+
+  /// Completes/updates a student's academic profile (grade level,
+  /// department, GPA, attendance rate), addressed by student id. The
+  /// backend responds with the freshly computed risk score/label and AI
+  /// summary.
+  Future<StudentProfile> completeStudentProfile(
+    String token,
+    String studentId,
+    StudentProfileRequest request,
+  ) async {
+    final Response<dynamic> response;
+    try {
+      response = await _dio.patch(
+        ApiConstants.studentEndpoint(studentId),
+        data: request.toJson(),
+        options: _authHeader(
+          token,
+        ).copyWith(contentType: Headers.jsonContentType),
+      );
+    } on DioException catch (e) {
+      throw AuthException(
+        _extractMessage(e) ?? 'Could not update your profile. Try again.',
+      );
+    }
+
+    final body = response.data;
+    if (body is! Map<String, dynamic>) {
+      throw AuthException('Received an unexpected response from server.');
+    }
+    return StudentProfile.fromJson(body);
+  }
+
+  /// Fetches a single student's academic profile by id (e.g. for an
+  /// educator opening a student's detail page).
+  Future<StudentProfile> getStudentById(String token, String studentId) async {
+    final Response<dynamic> response;
+    try {
+      response = await _dio.get(
+        ApiConstants.studentEndpoint(studentId),
+        options: _authHeader(token),
+      );
+    } on DioException catch (e) {
+      throw AuthException(
+        _extractMessage(e) ?? 'Could not fetch this student.',
+      );
+    }
+
+    final body = response.data;
+    if (body is! Map<String, dynamic>) {
+      throw AuthException('Received an unexpected response from server.');
+    }
+    return StudentProfile.fromJson(body);
+  }
+
+  /// Fetches the signed-in student's own canonical academic profile.
+  Future<StudentProfile> getMyStudentProfile(String token) async {
+    final Response<dynamic> response;
+    try {
+      response = await _dio.get(
+        ApiConstants.myStudentProfileEndpoint,
+        options: _authHeader(token),
+      );
+    } on DioException catch (e) {
+      throw AuthException(
+        _extractMessage(e) ?? 'Could not fetch your profile.',
+      );
+    }
+
+    final body = response.data;
+    if (body is! Map<String, dynamic>) {
+      throw AuthException('Received an unexpected response from server.');
+    }
+    return StudentProfile.fromJson(body);
   }
 }

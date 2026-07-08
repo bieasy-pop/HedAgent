@@ -6,6 +6,10 @@ import 'package:hedagent/features/authentication/screens/pending_approval_screen
 import 'package:hedagent/features/authentication/screens/sign_in_screen.dart';
 import 'package:hedagent/features/authentication/screens/sign_up_role_screen.dart';
 import 'package:hedagent/features/authentication/screens/student_sign_up_screen.dart';
+import 'package:hedagent/features/educator/models/educator_models.dart';
+import 'package:hedagent/features/educator/screens/add_student_screen.dart';
+import 'package:hedagent/features/educator/screens/send_alert_screen.dart';
+import 'package:hedagent/features/educator/screens/student_detail_screen.dart';
 import 'package:hedagent/features/home/screens/home.dart';
 import 'package:hedagent/features/onboarding/screens/onboarding_screen.dart';
 import 'package:hedagent/features/onboarding/screens/splash_screen.dart';
@@ -76,6 +80,33 @@ class AppRouter {
         path: '/home',
         pageBuilder: (context, state) {
           return const MaterialPage(child: Home());
+        },
+      ),
+      GoRoute(
+        name: RouteNames.studentDetailScreenString,
+        path: '/student_detail_screen',
+        pageBuilder: (context, state) {
+          return MaterialPage(
+            child: StudentDetailScreen(
+              student: state.extra as EducatorStudent,
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        name: RouteNames.addStudentScreenString,
+        path: '/add_student_screen',
+        pageBuilder: (context, state) {
+          return const MaterialPage(child: AddStudentScreen());
+        },
+      ),
+      GoRoute(
+        name: RouteNames.sendAlertScreenString,
+        path: '/send_alert_screen',
+        pageBuilder: (context, state) {
+          return MaterialPage(
+            child: SendAlertScreen(student: state.extra as EducatorStudent?),
+          );
         },
       ),
     ],

@@ -1,55 +1,81 @@
 class StudentProfile {
   const StudentProfile({
+    this.id,
+    this.userId,
     this.studentNumber,
     this.faculty,
     this.department,
     this.programme,
     this.level,
+    this.gradeLevel,
     this.yearOfAdmission,
     this.expectedGraduation,
     this.gpa,
     this.attendanceRate,
     this.riskLabel,
+    this.riskScore,
+    this.aiSummary,
   });
 
+  final String? id;
+  final String? userId;
   final String? studentNumber;
   final String? faculty;
   final String? department;
   final String? programme;
   final String? level;
+  final String? gradeLevel;
   final String? yearOfAdmission;
   final String? expectedGraduation;
   final num? gpa;
   final num? attendanceRate;
   final String? riskLabel;
+  final num? riskScore;
+  final String? aiSummary;
 
   factory StudentProfile.fromJson(Map<String, dynamic> json) {
     return StudentProfile(
+      id: json['id']?.toString(),
+      userId: json['user_id']?.toString(),
       studentNumber: json['student_number'] as String?,
       faculty: json['faculty'] as String?,
       department: json['department'] as String?,
       programme: json['programme'] as String?,
       level: json['level'] as String?,
+      gradeLevel: json['grade_level'] as String?,
       yearOfAdmission: json['year_of_admission'] as String?,
       expectedGraduation: json['expected_graduation'] as String?,
       gpa: json['gpa'] as num?,
       attendanceRate: json['attendance_rate'] as num?,
       riskLabel: json['risk_label'] as String?,
+      riskScore: json['risk_score'] as num?,
+      aiSummary: json['ai_summary'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() => {
+    'id': id,
+    'user_id': userId,
     'student_number': studentNumber,
     'faculty': faculty,
     'department': department,
     'programme': programme,
     'level': level,
+    'grade_level': gradeLevel,
     'year_of_admission': yearOfAdmission,
     'expected_graduation': expectedGraduation,
     'gpa': gpa,
     'attendance_rate': attendanceRate,
     'risk_label': riskLabel,
+    'risk_score': riskScore,
+    'ai_summary': aiSummary,
   };
+
+  /// True once GPA, attendance rate, and a risk label have all been
+  /// supplied — before that the profile is "unclassified" and the app
+  /// must prompt the student to complete it.
+  bool get isClassified =>
+      gpa != null && attendanceRate != null && riskLabel != null;
 }
 
 class EducatorProfile {
@@ -170,6 +196,27 @@ class AuthUser {
     'student_profile': studentProfile?.toJson(),
     'educator_profile': educatorProfile?.toJson(),
   };
+
+  AuthUser copyWith({StudentProfile? studentProfile}) {
+    return AuthUser(
+      id: id,
+      email: email,
+      firstName: firstName,
+      lastName: lastName,
+      role: role,
+      otherName: otherName,
+      fullName: fullName,
+      universityName: universityName,
+      phoneNumber: phoneNumber,
+      gender: gender,
+      dateOfBirth: dateOfBirth,
+      avatarUrl: avatarUrl,
+      isActive: isActive,
+      isVerified: isVerified,
+      studentProfile: studentProfile ?? this.studentProfile,
+      educatorProfile: educatorProfile,
+    );
+  }
 }
 
 class AuthResponse {

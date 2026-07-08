@@ -6,4 +6,14 @@ class ApiConstants {
       '$baseUrl/api/auth/send-verification';
   static const String verifyEmailEndpoint = '$baseUrl/api/auth/verify-email';
   static const String meEndpoint = '$baseUrl/api/auth/me';
+
+  /// GET (fetch) and PATCH (complete/update) endpoint for a single
+  /// student's academic profile (grade level, department, GPA,
+  /// attendance rate, etc.), addressed by student id.
+  static String studentEndpoint(String studentId) =>
+      '$baseUrl/api/students/$studentId';
+
+  /// GET endpoint used by a signed-in student to fetch their own
+  /// canonical academic profile.
+  static const String myStudentProfileEndpoint = '$baseUrl/api/students/me';
 }
