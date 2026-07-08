@@ -10,6 +10,7 @@ import 'package:hedagent/features/educator/models/educator_models.dart';
 import 'package:hedagent/features/educator/screens/add_student_screen.dart';
 import 'package:hedagent/features/educator/screens/send_alert_screen.dart';
 import 'package:hedagent/features/educator/screens/student_detail_screen.dart';
+import 'package:hedagent/features/goals/screens/goal_detail_screen.dart';
 import 'package:hedagent/features/home/screens/home.dart';
 import 'package:hedagent/features/onboarding/screens/onboarding_screen.dart';
 import 'package:hedagent/features/onboarding/screens/splash_screen.dart';
@@ -106,6 +107,15 @@ class AppRouter {
         pageBuilder: (context, state) {
           return MaterialPage(
             child: SendAlertScreen(student: state.extra as EducatorStudent?),
+          );
+        },
+      ),
+      GoRoute(
+        name: RouteNames.goalDetailScreenString,
+        path: '/goal_detail_screen',
+        pageBuilder: (context, state) {
+          return MaterialPage(
+            child: GoalDetailScreen(goalId: state.extra as String),
           );
         },
       ),

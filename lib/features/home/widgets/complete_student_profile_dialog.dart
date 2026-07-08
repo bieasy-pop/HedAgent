@@ -32,6 +32,7 @@ class _CompleteStudentProfileDialog extends StatefulWidget {
 class _CompleteStudentProfileDialogState
     extends State<_CompleteStudentProfileDialog> {
   final _formKey = GlobalKey<FormState>();
+  final _gradeLevelController = TextEditingController();
   final _departmentController = TextEditingController();
   final _gpaController = TextEditingController();
   final _attendanceRateController = TextEditingController();
@@ -76,6 +77,7 @@ class _CompleteStudentProfileDialogState
 
   @override
   void dispose() {
+    _gradeLevelController.dispose();
     _departmentController.dispose();
     _gpaController.dispose();
     _attendanceRateController.dispose();
@@ -104,7 +106,7 @@ class _CompleteStudentProfileDialogState
         token,
         user.id,
         StudentProfileRequest(
-          gradeLevel: '5.0',
+          gradeLevel: _gradeLevelController.text.trim(),
           department: _departmentController.text.trim(),
           gpa: num.parse(_gpaController.text.trim()),
           attendanceRate: num.parse(_attendanceRateController.text.trim()),
@@ -122,19 +124,22 @@ class _CompleteStudentProfileDialogState
     } on AuthException catch (e) {
       setState(() => _errorMessage = e.message);
     } catch (_) {
-      setState(() => _errorMessage = 'Something went wrong. Please try again.');
+      setState(
+        () => _errorMessage = 'Something went wrong. Please try again.',
+      );
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
       child: Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: _isPrefilling
@@ -143,132 +148,134 @@ class _CompleteStudentProfileDialogState
                   child: Center(child: CircularProgressIndicator()),
                 )
               : Form(
-                  key: _formKey,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Complete Your Profile',
-                          style: AppTextStyle.fourtStyle,
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Complete Your Profile', style: AppTextStyle.fourtStyle),
+                  Gap(6),
+                  Text(
+                    'We need a few academic details to personalize your insights and track your progress.',
+                    style: AppTextStyle.nintStyle,
+                  ),
+                  Gap(20),
+                  TextFormField(
+                    controller: _gradeLevelController,
+                    decoration: const InputDecoration(labelText: 'Grade Level'),
+                    validator: (value) =>
+                        (value == null || value.trim().isEmpty)
+                        ? 'Grade level is required'
+                        : null,
+                  ),
+                  Gap(12),
+                  TextFormField(
+                    controller: _departmentController,
+                    readOnly: _departmentIsKnown,
+                    decoration: InputDecoration(
+                      labelText: 'Department',
+                      helperText: _departmentIsKnown
+                          ? 'From your student profile'
+                          : null,
+                      filled: _departmentIsKnown,
+                      fillColor: _departmentIsKnown
+                          ? fourLightBlueColor
+                          : null,
+                    ),
+                    validator: (value) =>
+                        (value == null || value.trim().isEmpty)
+                        ? 'Department is required'
+                        : null,
+                  ),
+                  Gap(12),
+                  TextFormField(
+                    controller: _gpaController,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    decoration: const InputDecoration(labelText: 'GPA'),
+                    validator: (value) {
+                      final parsed = num.tryParse((value ?? '').trim());
+                      if (parsed == null) return 'Enter a valid GPA';
+                      if (parsed < 0 || parsed > 5) {
+                        return 'GPA should be between 0 and 5';
+                      }
+                      return null;
+                    },
+                  ),
+                  Gap(12),
+                  TextFormField(
+                    controller: _attendanceRateController,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    decoration: const InputDecoration(
+                      labelText: 'Attendance Rate (%)',
+                    ),
+                    validator: (value) {
+                      final parsed = num.tryParse((value ?? '').trim());
+                      if (parsed == null) return 'Enter a valid percentage';
+                      if (parsed < 0 || parsed > 100) {
+                        return 'Attendance rate should be between 0 and 100';
+                      }
+                      return null;
+                    },
+                  ),
+                  Gap(12),
+                  TextFormField(
+                    controller: _studentNumberController,
+                    readOnly: _studentNumberIsKnown,
+                    decoration: InputDecoration(
+                      labelText: 'Student Number',
+                      helperText: _studentNumberIsKnown
+                          ? 'From your student profile'
+                          : null,
+                      filled: _studentNumberIsKnown,
+                      fillColor: _studentNumberIsKnown
+                          ? fourLightBlueColor
+                          : null,
+                    ),
+                    validator: (value) =>
+                        (value == null || value.trim().isEmpty)
+                        ? 'Student number is required'
+                        : null,
+                  ),
+                  if (_errorMessage != null) ...[
+                    Gap(12),
+                    Text(
+                      _errorMessage!,
+                      style: AppTextStyle.sevStyle.copyWith(color: redColor),
+                    ),
+                  ],
+                  Gap(24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: _isSubmitting ? null : _submit,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        Gap(6),
-                        Text(
-                          'We need a few academic details to personalize your insights and track your progress.',
-                          style: AppTextStyle.nintStyle,
-                        ),
-                        Gap(20),
-                        TextFormField(
-                          controller: _departmentController,
-                          readOnly: _departmentIsKnown,
-                          decoration: InputDecoration(
-                            labelText: 'Department',
-                            helperText: _departmentIsKnown
-                                ? 'From your profile'
-                                : null,
-                            filled: _departmentIsKnown,
-                            fillColor: _departmentIsKnown
-                                ? fourLightBlueColor
-                                : null,
-                          ),
-                          validator: (value) =>
-                              (value == null || value.trim().isEmpty)
-                              ? 'Department is required'
-                              : null,
-                        ),
-                        Gap(12),
-                        TextFormField(
-                          controller: _gpaController,
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          decoration: const InputDecoration(labelText: 'GPA'),
-                          validator: (value) {
-                            final parsed = num.tryParse((value ?? '').trim());
-                            if (parsed == null) return 'Enter a valid GPA';
-                            if (parsed < 0 || parsed > 5) {
-                              return 'GPA should be between 0 and 5';
-                            }
-                            return null;
-                          },
-                        ),
-                        Gap(12),
-                        TextFormField(
-                          controller: _attendanceRateController,
-                          keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                          decoration: const InputDecoration(
-                            labelText: 'Attendance Rate (%)',
-                          ),
-                          validator: (value) {
-                            final parsed = num.tryParse((value ?? '').trim());
-                            if (parsed == null) {
-                              return 'Enter a valid percentage';
-                            }
-                            if (parsed < 0 || parsed > 100) {
-                              return 'Attendance rate should be between 0 and 100';
-                            }
-                            return null;
-                          },
-                        ),
-                        Gap(12),
-                        TextFormField(
-                          controller: _studentNumberController,
-                          readOnly: _studentNumberIsKnown,
-                          decoration: InputDecoration(
-                            labelText: 'Student Number',
-                            helperText: _studentNumberIsKnown
-                                ? 'From your profile'
-                                : null,
-                            filled: _studentNumberIsKnown,
-                            fillColor: _studentNumberIsKnown
-                                ? fourLightBlueColor
-                                : null,
-                          ),
-                          validator: (value) =>
-                              (value == null || value.trim().isEmpty)
-                              ? 'Student number is required'
-                              : null,
-                        ),
-                        if (_errorMessage != null) ...[
-                          Gap(12),
-                          Text(
-                            _errorMessage!,
-                            style: AppTextStyle.sevStyle.copyWith(
-                              color: redColor,
-                            ),
-                          ),
-                        ],
-                        Gap(24),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 48,
-                          child: ElevatedButton(
-                            onPressed: _isSubmitting ? null : _submit,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: primaryColor,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: _isSubmitting
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: whiteColor,
                               ),
-                            ),
-                            child: _isSubmitting
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: whiteColor,
-                                    ),
-                                  )
-                                : Text('Submit', style: AppTextStyle.fivStyle),
-                          ),
-                        ),
-                      ],
+                            )
+                          : Text('Submit', style: AppTextStyle.fivStyle),
                     ),
                   ),
-                ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );

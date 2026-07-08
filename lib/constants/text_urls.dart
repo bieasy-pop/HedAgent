@@ -16,4 +16,12 @@ class ApiConstants {
   /// GET endpoint used by a signed-in student to fetch their own
   /// canonical academic profile.
   static const String myStudentProfileEndpoint = '$baseUrl/api/students/me';
+
+  /// POST (create) and GET (list) endpoint for the signed-in student's
+  /// goals.
+  static const String goalsEndpoint = '$baseUrl/api/goals/';
+
+  /// GET endpoint for a single goal by id.
+  static String goalByIdEndpoint(String goalId) =>
+      '$baseUrl/api/goals/$goalId';
 }

@@ -69,7 +69,9 @@ class AuthRepository {
         options: Options(contentType: Headers.jsonContentType),
       );
     } on DioException catch (e) {
-      throw AuthException(_extractMessage(e) ?? 'Login failed. Please try again.');
+      throw AuthException(
+        _extractMessage(e) ?? 'Login failed. Please try again.',
+      );
     }
 
     final body = response.data;
@@ -159,7 +161,7 @@ class AuthRepository {
     final Response<dynamic> response;
     try {
       response = await _dio.patch(
-        ApiConstants.studentEndpoint(studentId),
+        ApiConstants.myStudentProfileEndpoint,
         data: request.toJson(),
         options: _authHeader(
           token,

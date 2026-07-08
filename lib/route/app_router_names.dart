@@ -12,4 +12,5 @@ class RouteNames {
   static const String studentDetailScreenString = 'student-detail-screen';
   static const String addStudentScreenString = 'add-student-screen';
   static const String sendAlertScreenString = 'send-alert-screen';
+  static const String goalDetailScreenString = 'goal-detail-screen';
 }

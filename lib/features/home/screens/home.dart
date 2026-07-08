@@ -72,7 +72,12 @@ class _HomeState extends State<Home> {
             EducatorAlertsScreen(),
             EducatorProfileScreen(),
           ]
-        : [DashBoardScreen(), AnalyticsScreen(), MessageScreen(), ProfileScreen()];
+        : [
+            DashBoardScreen(onSeeMessages: () => _onItemTapped(2)),
+            AnalyticsScreen(),
+            MessageScreen(),
+            ProfileScreen(),
+          ];
 
     final List<_NavItem> navItems = _isEducator
         ? const [
